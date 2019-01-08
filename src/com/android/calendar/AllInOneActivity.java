@@ -432,6 +432,7 @@ public class AllInOneActivity extends Activity implements EventHandler,
         mActionBarMenuSpinnerAdapter = new CalendarViewAdapter (this, viewType, !tabletConfig);
         mActionBar = getActionBar();
         mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+        mActionBar.setElevation(0f);
         mActionBar.setListNavigationCallbacks(mActionBarMenuSpinnerAdapter, this);
         switch (viewType) {
             case ViewType.AGENDA:
