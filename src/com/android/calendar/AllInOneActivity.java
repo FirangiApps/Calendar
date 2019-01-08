@@ -24,7 +24,7 @@ import android.accounts.OperationCanceledException;
 import android.animation.Animator;
 import android.animation.Animator.AnimatorListener;
 import android.animation.ObjectAnimator;
-import android.app.ActionBar;
+import androidx.appcompat.app.ActionBar;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
@@ -62,6 +62,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.calendar.CalendarController.EventHandler;
 import com.android.calendar.CalendarController.EventInfo;
@@ -69,6 +70,7 @@ import com.android.calendar.CalendarController.EventType;
 import com.android.calendar.CalendarController.ViewType;
 import com.android.calendar.month.MonthByWeekFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.IOException;
 import java.util.List;
@@ -80,7 +82,7 @@ import static android.provider.CalendarContract.EXTRA_EVENT_ALL_DAY;
 import static android.provider.CalendarContract.EXTRA_EVENT_BEGIN_TIME;
 import static android.provider.CalendarContract.EXTRA_EVENT_END_TIME;
 
-public class AllInOneActivity extends Activity implements EventHandler,
+public class AllInOneActivity extends AppCompatActivity implements EventHandler,
         OnSharedPreferenceChangeListener{
     private static final String TAG = "AllInOneActivity";
     private static final boolean DEBUG = false;
@@ -206,6 +208,7 @@ public class AllInOneActivity extends Activity implements EventHandler,
 
     @Override
     protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
         String action = intent.getAction();
         if (DEBUG)
             Log.d(TAG, "New intent received " + intent.toString());
@@ -334,6 +337,7 @@ public class AllInOneActivity extends Activity implements EventHandler,
         // the list of event handlers in it's handle method. This affects who
         // the rest of the handlers the controller dispatches to are.
         mController.registerFirstEventHandler(HANDLER_KEY, this);
+        mBottomNavigation = (BottomNavigationView) findViewById(R.id.bottom_navigation);
 
         initFragments(timeMillis, viewType, icicle);
 
@@ -342,8 +346,11 @@ public class AllInOneActivity extends Activity implements EventHandler,
         prefs.registerOnSharedPreferenceChangeListener(this);
 
         mContentResolver = getContentResolver();
-        mActionBar = getActionBar();
-        mBottomNavigation = (BottomNavigationView) findViewById(R.id.bottom_navigation);
+        mActionBar = getSupportActionBar();
+        if (mActionBar != null) {
+            mActionBar.setHomeButtonEnabled(true);
+            mActionBar.setElevation(0f);
+        }
         mBottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
@@ -702,16 +709,17 @@ public class AllInOneActivity extends Activity implements EventHandler,
             case ViewType.AGENDA:
                 break;
             case ViewType.DAY:
+                mBottomNavigation.setSelectedItemId(R.id.action_day);
                 frag = new DayFragment(timeMillis, 1);
                 break;
             case ViewType.MONTH:
+                mBottomNavigation.setSelectedItemId(R.id.action_month);
                 frag = new MonthByWeekFragment(timeMillis, false);
                 break;
             case ViewType.WEEK:
-                frag = new DayFragment(timeMillis, 7);
-                break;
             default:
-                frag = new MonthByWeekFragment(timeMillis, false);
+                frag = new DayFragment(timeMillis, 7);
+                mBottomNavigation.setSelectedItemId(R.id.action_week);
                 break;
         }
 

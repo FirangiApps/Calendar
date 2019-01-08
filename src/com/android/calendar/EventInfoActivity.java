@@ -15,12 +15,6 @@
  */
 package com.android.calendar;
 
-import static android.provider.CalendarContract.EXTRA_EVENT_BEGIN_TIME;
-import static android.provider.CalendarContract.EXTRA_EVENT_END_TIME;
-import static android.provider.CalendarContract.Attendees.ATTENDEE_STATUS;
-
-import android.app.ActionBar;
-import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
@@ -31,18 +25,24 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Attendees;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class EventInfoActivity extends Activity {
+import static android.provider.CalendarContract.Attendees.ATTENDEE_STATUS;
+import static android.provider.CalendarContract.EXTRA_EVENT_BEGIN_TIME;
+import static android.provider.CalendarContract.EXTRA_EVENT_END_TIME;
+
+public class EventInfoActivity extends AppCompatActivity {
+//        implements CalendarController.EventHandler, SearchView.OnQueryTextListener,
+//        SearchView.OnCloseListener {
+
     private static final String TAG = "EventInfoActivity";
     private EventInfoFragment mInfoFragment;
-    private long mStartMillis, mEndMillis;
-    private long mEventId;
-
     // Create an observer so that we can update the views whenever a
     // Calendar event changes.
     private final ContentObserver mObserver = new ContentObserver(new Handler()) {
@@ -59,6 +59,8 @@ public class EventInfoActivity extends Activity {
             }
         }
     };
+    private long mStartMillis, mEndMillis;
+    private long mEventId;
 
     @Override
     protected void onCreate(Bundle icicle) {
@@ -100,7 +102,7 @@ public class EventInfoActivity extends Activity {
                 } catch (NumberFormatException e) {
                     if (mEventId == -1) {
                         // do nothing here , deal with it later
-                    } else if (mStartMillis == 0 || mEndMillis ==0) {
+                    } else if (mStartMillis == 0 || mEndMillis == 0) {
                         // Parsing failed on the start or end time , make sure the times were not
                         // pulled from the intent's extras and reset them.
                         mStartMillis = 0;
@@ -135,9 +137,9 @@ public class EventInfoActivity extends Activity {
 
 
         // Remove the application title
-        ActionBar bar = getActionBar();
+        ActionBar bar = getSupportActionBar();
         if (bar != null) {
-            bar.setDisplayOptions(ActionBar.DISPLAY_HOME_AS_UP | ActionBar.DISPLAY_SHOW_HOME);
+            bar.setDisplayHomeAsUpEnabled(true);
         }
 
         // Create a new fragment if none exists
@@ -146,8 +148,8 @@ public class EventInfoActivity extends Activity {
             FragmentTransaction ft = fragmentManager.beginTransaction();
             mInfoFragment = new EventInfoFragment(this, mEventId, mStartMillis, mEndMillis,
                     attendeeResponse, isDialog, (isDialog ?
-                            EventInfoFragment.DIALOG_WINDOW_STYLE :
-                                EventInfoFragment.FULL_WINDOW_STYLE));
+                    EventInfoFragment.DIALOG_WINDOW_STYLE :
+                    EventInfoFragment.FULL_WINDOW_STYLE));
             ft.replace(R.id.main_frame, mInfoFragment);
             ft.commit();
         }
@@ -161,6 +163,7 @@ public class EventInfoActivity extends Activity {
         // received with onCreate(). This is why setIntent(Intent) is called
         // inside onNewIntent(Intent) (just in case you call getIntent() at a
         // later time)."
+        super.onNewIntent(intent);
         setIntent(intent);
     }
 

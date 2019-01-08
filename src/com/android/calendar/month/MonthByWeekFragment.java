@@ -16,6 +16,7 @@
 
 package com.android.calendar.month;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.LoaderManager;
